@@ -1,0 +1,159 @@
+1.	# Python code to display the way from the root  
+2.	# node to the final destination node for N*N-1 puzzle  
+3.	# algorithm by the help of Branch and Bound technique  
+4.	# The answer assumes that the instance of the puzzle can be solved  
+5.	  # Importing the 'copy' for deepcopy method  
+6.	import copy  
+7.	 # Importing the heap methods from the python library for the Priority Queue  from heapq import heappush, heappop  
+8.	  # This particular var can be changed to transform the program from 8 puzzle#(n=3) into 15  puzzle(n=4) and so on ...  
+9.	n = 3  
+10.	  # bottom, left, top, right  
+11.	rows = [ 1, 0, -1, 0 ]  
+12.	cols = [ 0, -1, 0, 1 ]  
+13.	  # creating a class for the Priority Queue  
+14.	class priorityQueue:  
+15.	      # Constructor for initializing a  Priority Queue  
+16.	    def __init__(self):  
+17.	        self.heap = []  
+18.	  # Inserting a new key 'key'  
+19.	    def push(self, key):  
+20.	        heappush(self.heap, key)  
+21.	      # funct to remove the element that is minimum from the Priority Queue  
+22.	    def pop(self):  
+23.	        return heappop(self.heap)  
+24.	    # funct to check if the Queue is empty or not  
+25.	    def empty(self):  
+26.	        if not self.heap:  
+27.	            return True  
+28.	        else:  
+29.	            return False  
+30.	  # structure of the node  
+31.	class nodes:  
+32.	      def __init__(self, parent, mats, empty_tile_posi,  
+33.	                costs, levels):  
+34.	 # This will store the parent node to the current node And helps in tracing 
+35.	 #the  path when the solution is visible  
+36.	        self.parent = parent  
+37.	   # Useful for Storing the matrix  
+38.	        self.mats = mats  
+39.	    # useful for Storing the position where the  
+40.	    # empty space tile is already existing in the matrix  
+41.	        self.empty_tile_posi = empty_tile_posi  
+42.	    # Store no. of misplaced tiles  
+43.	        self.costs = costs  
+44.	    # Store no. of moves so far  
+45.	        self.levels = levels  
+46.	   # This func is used in order to form the  priority queue based on
+47.	# the costs var of objects  
+48.	    def __lt__(self, nxt):  
+49.	        return self.costs < nxt.costs  
+50.	  #method to calc. the no. of misplaced tiles, that is the no. of non-blank  
+51.	# tiles not in their final position  
+52.	def calculateCosts(mats, final) -> int:  
+53.	      count = 0  
+54.	    for i in range(n):  
+55.	        for j in range(n):  
+56.	            if ((mats[i][j]) and  
+57.	                (mats[i][j] != final[i][j])):  
+58.	                count += 1  
+59.	                  return count  
+60.	  
+61.	def newNodes(mats, empty_tile_posi, new_empty_tile_posi,  
+62.	            levels, parent, final) -> nodes:  
+63.	    # Copying data from the parent matrixes to the present matrixes  
+64.	    new_mats = copy.deepcopy(mats)  
+65.	    # Moving the tile by 1 position  
+66.	    x1 = empty_tile_posi[0]  
+67.	    y1 = empty_tile_posi[1]  
+68.	    x2 = new_empty_tile_posi[0]  
+69.	    y2 = new_empty_tile_posi[1]  
+70.	    new_mats[x1][y1], new_mats[x2][y2] = new_mats[x2][y2], new_mats[x1][y1]  
+71.	  # Setting the no. of misplaced tiles  
+72.	    costs = calculateCosts(new_mats, final)  
+73.	     new_nodes = nodes(parent, new_mats, new_empty_tile_posi,  
+74.	                    costs, levels)  
+75.	    return new_nodes  
+76.	  # func to print the N by N matrix  
+77.	def printMatsrix(mats):  
+78.	      for i in range(n):  
+79.	        for j in range(n):  
+80.	            print("%d " % (mats[i][j]), end = " ")  
+81.	         print()  
+82.	  # func to know if (x, y) is a valid or invalid matrix coordinates  
+83.	def isSafe(x, y):  
+84.	      return x >= 0 and x < n and y >= 0 and y < n  
+85.	  # Printing the path from the root node to the final node  
+86.	def printPath(root):  
+87.	    if root == None:  
+88.	        return  
+89.	    printPath(root.parent)  
+90.	    printMatsrix(root.mats)  
+91.	    print()  
+92.	 # method for solving N*N - 1 puzzle algoby utilizing the Branch and Bound 
+93.	 #technique. empty_tile_posi is  the blank tile position initially.  
+94.	def solve(initial, empty_tile_posi, final):  
+95.	      # Creating a priority queue for storing the live  nodes of the search tree  
+96.	    pq = priorityQueue()  
+97.	  # Creating the root node  
+98.	    costs = calculateCosts(initial, final)  
+99.	    root = nodes(None, initial,  
+100.	                empty_tile_posi, costs, 0)  
+101.	  # Adding root to the list of live nodes  
+102.	    pq.push(root)  
+103.	# Discovering a live node with min. costs, and adding its children to the
+104.	# list of live  nodes and finally deleting it from the list.  
+105.	    while not pq.empty():  
+106.	# Finding a live node with min. estimatsed costs and deleting it form 
+107.	#the list of the   live nodes  
+108.	        minimum = pq.pop()  
+109.	  # If the min. is ans node  
+110.	        if minimum.costs == 0:  
+111.	  # Printing the path from the root to destination;  
+112.	            printPath(minimum)  
+113.	            return  
+114.	  # Generating all feasible children  
+115.	        for i in range(n):  
+116.	            new_tile_posi = [  
+117.	                minimum.empty_tile_posi[0] + rows[i],  
+118.	                minimum.empty_tile_posi[1] + cols[i], ]  
+119.	              if isSafe(new_tile_posi[0], new_tile_posi[1]):  
+120.	               # Creating a child node  
+121.	                child = newNodes(minimum.mats,  
+122.	                                minimum.empty_tile_posi,  
+123.	                                new_tile_posi,  
+124.	                                minimum.levels + 1,  
+125.	                                minimum, final,)  
+126.	        # Adding the child to the list of live nodes  
+127.	                pq.push(child)  
+128.	# Main Code
+129.	  
+130.	# Initial configuration Value 0 is taken here as an empty space  
+131.	initial = [ [ 1, 2, 3 ],  
+132.	            [ 5, 6, 0 ],  
+133.	            [ 7, 8, 4 ] ]  
+134.	  # Final configuration that can be solved  
+135.	# Value 0 is taken as an empty space  
+136.	final = [ [ 1, 2, 3 ],  
+137.	        [ 5, 8, 6 ],  
+138.	        [ 0, 7, 4 ] ]  
+139.	# Blank tile coordinates in the initial configuration  
+140.	empty_tile_posi = [ 1, 2 ]  
+141.	# Method call for solving the puzzle  
+142.	solve(initial, empty_tile_posi, final)  
+
+
+Explanation:
+Let us consider a 3×3 Board with eight numbered tiles and a blank space
+States: A state description specifies the location of each of the eight tiles and the blank
+ in one of the nine squares.
+Initial state: Any state can be designated as the initial state.
+Actions: The simplest formulation defines the actions as movements of the blank space
+ Left, Right, Up, or Down. Different subsets of these are possible depending on 
+ where the blank is.
+Transition model: Given a state and action, this returns the resulting state; 
+for example, if we apply Left to the start state in above Figure, the resulting state has the 
+ 5 and the blank switched.
+Goal test: This checks whether the state matches the goal configuration shown in 
+Figure
+ (Other goal configurations are possible.)
+Path cost: Each step costs 1, so the path cost is the number of steps in the path.
