@@ -1,0 +1,7 @@
+Aim
+To demonstrate the Alpha-Beta pruning algorithm in a minimax decision-making process, optimizing game tree evaluations for two-player games like Tic-Tac-Toe.
+
+Description
+The code implements an Alpha-Beta pruning algorithm through the minimax function, which recursively evaluates optimal values for maximizing and minimizing players while pruning unnecessary branches based on Alpha and Beta thresholds.
+
+The driver code initializes a set of leaf node values and calls the minimax function, printing the optimal score for the maximizing player. The values [3, 5, 6, 9, 1, 2, 0, -1] represent hypothetical outcomes for the leaf nodes.
